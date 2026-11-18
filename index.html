@@ -1,0 +1,2222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no,email=no,address=no">
+<meta name="theme-color" content="#fdf7f8">
+<title>测一测你的 TA 是什么类型的恋人 · 星座滤镜版</title>
+<style>
+  :root{
+    --rose:#e2688c;
+    --violet:#9b86ea;
+    --ink:#2b2431;
+    --sub:#7d7385;
+    --line:#f2e8ee;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  html{
+    height:100%;
+    -webkit-text-size-adjust:100%;
+    text-size-adjust:100%;
+    -webkit-overflow-scrolling:touch;
+  }
+  /* iOS 聚焦时若输入控件字号小于 16px 会自动放大页面，这里统一兜底 */
+  input,select,textarea{font-size:16px;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    color:var(--ink);
+    background:#fdf7f8;
+    -webkit-font-smoothing:antialiased;
+    /* 高度降级链：老内核 100vh -> iOS 100% / -webkit-fill-available -> 现代 100dvh */
+    min-height:100vh;
+    min-height:100%;
+    min-height:-webkit-fill-available;
+    min-height:100dvh;
+    line-height:1.5;
+    overscroll-behavior-y:contain;
+    -webkit-overflow-scrolling:touch;
+    touch-action:manipulation;
+  }
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    background:
+      radial-gradient(620px 420px at 10% -6%, #ffd9e4 0%, rgba(255,217,228,0) 62%),
+      radial-gradient(520px 400px at 96% 6%, #dcd8ff 0%, rgba(220,216,255,0) 64%),
+      radial-gradient(640px 520px at 50% 112%, #d8f1ec 0%, rgba(216,241,236,0) 62%),
+      linear-gradient(180deg,#fdf7f8 0%,#fbf6fa 100%);
+  }
+  .app{
+    max-width:440px;
+    margin:0 auto;
+    padding:24px 20px 40px;
+    /* 全面屏安全区：不支持 env() 的内核保留上一行的普通 padding */
+    padding:24px calc(20px + env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));
+  }
+  .screen{display:none;}
+  .screen.active{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    min-height:calc(100vh - 74px);
+    animation:rise .42s cubic-bezier(.22,.8,.3,1);
+  }
+  @supports (height:100dvh){
+    .screen.active{min-height:calc(100dvh - 74px);}
+  }
+  #result.active{justify-content:flex-start;min-height:0;}
+  @keyframes rise{
+    from{opacity:0;transform:translateY(14px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+
+  /* ---------- 封面 ---------- */
+  .cover{text-align:center;padding:6px 2px 0;}
+  .badge{
+    display:inline-block;
+    font-size:12px;
+    letter-spacing:.12em;
+    color:#96667e;
+    background:rgba(255,255,255,.78);
+    border:1px solid #f6dfe7;
+    border-radius:999px;
+    padding:7px 15px;
+    margin-bottom:20px;
+    box-shadow:0 4px 14px rgba(220,170,190,.12);
+  }
+  .cover h1{
+    font-size:27px;
+    line-height:1.42;
+    letter-spacing:-.4px;
+    margin:0 0 14px;
+    font-weight:700;
+  }
+  .cover h1 .hl{
+    color:#c2456b;
+    background:linear-gradient(115deg,#e2688c 10%,#9b86ea 90%);
+    font-style:italic;
+  }
+  @supports ((-webkit-background-clip:text) or (background-clip:text)){
+    .cover h1 .hl{
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color:transparent;
+      color:transparent;
+    }
+  }
+  .cover .sub{
+    font-size:13.5px;
+    color:var(--sub);
+    line-height:1.85;
+    margin:0 0 22px;
+  }
+  .chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+    justify-content:center;
+    margin-bottom:24px;
+  }
+  .chips span{
+    font-size:11.5px;
+    color:#8d7c96;
+    background:rgba(255,255,255,.72);
+    border:1px solid #f0e6ee;
+    border-radius:999px;
+    padding:5px 11px;
+  }
+
+  /* 模式选择 */
+  .modes{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;text-align:left;}
+  .mode{
+    position:relative;
+    background:rgba(255,255,255,.92);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:15px 16px;
+    cursor:pointer;
+    box-shadow:0 3px 12px rgba(190,160,175,.07);
+    transition:border-color .2s, box-shadow .2s, transform .2s, background .2s;
+  }
+  .mode:active{transform:translateY(1px);}
+  .mode.sel{
+    border-color:#eb9db4;
+    background:linear-gradient(120deg,#fff8fa,#faf7ff);
+    box-shadow:0 12px 26px rgba(232,140,168,.18);
+  }
+  .mode .mt{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:16px;
+    font-weight:600;
+    color:#332b3a;
+    margin-bottom:5px;
+  }
+  .mode .tag{
+    font-size:10.5px;
+    font-weight:600;
+    color:#fff;
+    background:linear-gradient(120deg,#f18aa4,#a98cf0);
+    border-radius:999px;
+    padding:2px 8px;
+    letter-spacing:.02em;
+  }
+  .mode .md{
+    font-size:12.5px;
+    color:#8a7f93;
+    line-height:1.7;
+  }
+  .mode .pick{
+    position:absolute;
+    right:16px;
+    top:50%;
+    transform:translateY(-50%);
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    border:1.5px solid #e6d3de;
+    background:#fff;
+    transition:all .2s;
+  }
+  .mode.sel .pick{
+    border-color:transparent;
+    background:linear-gradient(120deg,#f18aa4,#a98cf0);
+    box-shadow:inset 0 0 0 3px #fff;
+  }
+
+  /* 基本信息 */
+  .panel{
+    background:rgba(255,255,255,.82);
+    border:1px solid #f4e9f0;
+    border-radius:18px;
+    padding:15px 16px 16px;
+    text-align:left;
+    margin-bottom:18px;
+  }
+  .panel .plabel{
+    font-size:11px;
+    letter-spacing:.16em;
+    color:#b393a4;
+    margin-bottom:10px;
+    font-weight:600;
+  }
+  .grow{display:flex;gap:8px;flex-wrap:wrap;}
+  .gbtn{
+    flex:1;
+    min-width:82px;
+    text-align:center;
+    font-size:13.5px;
+    font-family:inherit;
+    color:#6f6478;
+    background:#fbf7fb;
+    border:1px solid #f0e7f2;
+    border-radius:12px;
+    padding:10px 6px;
+    cursor:pointer;
+    transition:all .18s;
+  }
+  .gbtn.sel{
+    color:#fff;
+    border-color:transparent;
+    background:linear-gradient(120deg,#ef8CA6,#a98cf0);
+    box-shadow:0 8px 18px rgba(232,140,168,.22);
+  }
+  .bday{display:flex;gap:8px;align-items:center;margin-top:12px;}
+  .bday select{
+    flex:1;
+    appearance:none;
+    -webkit-appearance:none;
+    font-family:inherit;
+    font-size:16px;
+    color:#4d4457;
+    background:#fbf7fb url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23c3aebc'/%3E%3C/svg%3E") no-repeat right 12px center;
+    border:1px solid #f0e7f2;
+    border-radius:12px;
+    padding:11px 28px 11px 13px;
+    outline:none;
+  }
+  .bday .unit{font-size:13px;color:#a296aa;}
+  .bday select:focus{border-color:#ecb4c6;background-color:#fff8fa;}
+  .hint{
+    font-size:11.5px;
+    color:#b48c9e;
+    margin-top:9px;
+    line-height:1.6;
+    display:none;
+  }
+  .hint.on{display:block;}
+  .signpeek{
+    font-size:12px;
+    color:#9a8a9f;
+    margin-top:9px;
+    display:none;
+  }
+  .signpeek.on{display:block;}
+  .signpeek b{color:#8a6f9f;font-weight:600;}
+
+  .btn{
+    display:block;
+    width:100%;
+    border:0;
+    border-radius:999px;
+    padding:16px 0;
+    font-size:16px;
+    font-weight:600;
+    font-family:inherit;
+    letter-spacing:.02em;
+    color:#fff;
+    background:linear-gradient(120deg,#ef8098 0%,#b487ea 100%);
+    box-shadow:0 12px 26px rgba(224,116,152,.30);
+    cursor:pointer;
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .btn:active{transform:translateY(1px) scale(.995);box-shadow:0 6px 16px rgba(224,116,152,.26);}
+  .btn.ghost{
+    background:rgba(255,255,255,.9);
+    color:#8a6f86;
+    border:1px solid #f0e0e8;
+    box-shadow:none;
+    margin-top:12px;
+    font-weight:500;
+  }
+  .foot{
+    margin-top:16px;
+    font-size:11.5px;
+    color:#a99fae;
+    letter-spacing:.02em;
+    text-align:center;
+  }
+
+  /* ---------- 答题 ---------- */
+  .qhead{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-size:12px;
+    color:#96899d;
+    margin-bottom:9px;
+  }
+  .qhead .back{
+    color:#b09ba8;
+    background:none;
+    border:0;
+    font-size:12px;
+    font-family:inherit;
+    padding:2px 0;
+    cursor:pointer;
+    visibility:hidden;
+  }
+  .qhead .back.on{visibility:visible;}
+  .qhead .count{font-variant-numeric:tabular-nums;letter-spacing:.06em;}
+  .stagebar{
+    display:flex;
+    gap:5px;
+    margin-bottom:11px;
+  }
+  .stagebar i{
+    flex:1;
+    height:3px;
+    border-radius:999px;
+    background:#f0e5ec;
+    transition:background .3s;
+  }
+  .stagebar i.done{background:linear-gradient(90deg,#f492a9,#a98cf0);}
+  .stagebar i.cur{background:#f4b6c8;}
+  .track{
+    height:5px;
+    border-radius:999px;
+    background:#f1e6ec;
+    overflow:hidden;
+  }
+  .track i{
+    display:block;
+    height:100%;
+    width:0;
+    border-radius:999px;
+    background:linear-gradient(90deg,#f492a9,#a98cf0);
+    transition:width .38s cubic-bezier(.3,.9,.3,1);
+  }
+  .stagename{
+    font-size:11px;
+    letter-spacing:.1em;
+    color:#b193a2;
+    margin-top:12px;
+  }
+  .qtext{
+    font-size:19.5px;
+    line-height:1.6;
+    font-weight:600;
+    letter-spacing:-.2px;
+    margin:12px 0 18px;
+    min-height:62px;
+  }
+  .opts{display:flex;flex-direction:column;gap:11px;}
+  .opt{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:14px 15px;
+    font-size:14.5px;
+    line-height:1.6;
+    color:#3b3242;
+    cursor:pointer;
+    user-select:none;
+    box-shadow:0 3px 10px rgba(190,160,175,.06);
+    transition:border-color .2s, background .2s, transform .2s, box-shadow .2s;
+  }
+  .opt .k{
+    flex:0 0 22px;
+    height:22px;
+    margin-top:1px;
+    border-radius:7px;
+    background:#fbf2f6;
+    color:#c68ba6;
+    font-size:12px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:all .2s;
+  }
+  .opt.sel{
+    border-color:#ec9cb3;
+    background:#fff8fa;
+    transform:translateY(-1px);
+    box-shadow:0 10px 22px rgba(232,140,168,.18);
+  }
+  .opt.sel .k{
+    background:linear-gradient(120deg,#f18aa4,#a98cf0);
+    color:#fff;
+  }
+
+  /* 过场 */
+  .pass{text-align:center;padding:10px 4px;}
+  .pass .big{
+    font-size:44px;
+    font-weight:800;
+    letter-spacing:-1px;
+    color:#c2456b;
+    line-height:1.1;
+    margin-bottom:8px;
+  }
+  @supports ((-webkit-background-clip:text) or (background-clip:text)){
+    .pass .big{
+      background:linear-gradient(118deg,#c8446b 5%,#7a5fd6 95%);
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color:transparent;
+      color:transparent;
+    }
+  }
+  .pass h2{
+    font-size:20px;
+    margin:0 0 10px;
+    letter-spacing:-.2px;
+    color:#2b2431;
+  }
+  .pass p{
+    font-size:13.5px;
+    color:#6f6478;
+    line-height:1.85;
+    margin:0 0 26px;
+  }
+  .pass .peek{
+    font-size:12.5px;
+    color:#5f5469;
+    background:rgba(255,255,255,.9);
+    border:1px solid #eddfe8;
+    border-radius:14px;
+    padding:13px 15px;
+    text-align:left;
+    line-height:1.8;
+    margin-bottom:26px;
+  }
+
+  /* ---------- 结果 ---------- */
+  .card{
+    background:rgba(255,255,255,.94);
+    border:1px solid rgba(240,230,238,.9);
+    border-radius:26px;
+    padding:26px 22px 24px;
+    box-shadow:0 18px 42px rgba(180,140,165,.14);
+  }
+  .rlabel{
+    font-size:11px;
+    letter-spacing:.22em;
+    color:#b193a2;
+    margin-bottom:12px;
+  }
+  .rtitle{
+    font-size:25px;
+    font-weight:700;
+    line-height:1.42;
+    letter-spacing:-.3px;
+    margin:0 0 5px;
+    background:linear-gradient(118deg,#dd6386 5%,#9b86ea 95%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .rsub{
+    font-size:12px;
+    color:#a99fae;
+    margin:0 0 16px;
+    letter-spacing:.02em;
+  }
+  .kws{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px;}
+  .kws span{
+    font-size:11px;
+    color:#9b7f95;
+    background:#fdf3f7;
+    border:1px solid #f6e3ec;
+    border-radius:999px;
+    padding:5px 10px;
+  }
+  .quote{
+    font-size:14.5px;
+    line-height:1.85;
+    color:#4a3f51;
+    background:linear-gradient(120deg,#fff6f9,#f7f3ff);
+    border-radius:16px;
+    padding:15px 16px;
+    margin:0 0 20px;
+  }
+  .sec{margin-bottom:20px;}
+  .sec:last-of-type{margin-bottom:4px;}
+  .sec h3{
+    font-size:12px;
+    letter-spacing:.16em;
+    color:#b393a4;
+    font-weight:600;
+    margin:0 0 11px;
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+  .sec h3::before{
+    content:"";
+    width:3px;
+    height:12px;
+    border-radius:2px;
+    background:linear-gradient(180deg,#f18aa4,#a98cf0);
+  }
+  .bars{display:flex;flex-direction:column;gap:9px;}
+  .bar-row{display:flex;align-items:center;gap:10px;font-size:12px;color:#6f6478;}
+  .bar-row .bn{flex:0 0 52px;color:#5c5266;}
+  .bar-row .bt{
+    flex:1;
+    height:6px;
+    border-radius:999px;
+    background:#f4ecf2;
+    overflow:hidden;
+  }
+  .bar-row .bt i{
+    display:block;
+    height:100%;
+    border-radius:999px;
+    background:linear-gradient(90deg,#f492a9,#a98cf0);
+    width:0;
+    transition:width .8s cubic-bezier(.2,.8,.3,1);
+  }
+  .bar-row .bv{flex:0 0 32px;text-align:right;color:#a397ac;font-variant-numeric:tabular-nums;}
+  ol.list{
+    list-style:none;
+    counter-reset:n;
+    margin:0;
+    padding:0;
+  }
+  ol.list li{
+    counter-increment:n;
+    position:relative;
+    padding:0 0 0 26px;
+    font-size:14.5px;
+    line-height:1.8;
+    color:#443a4c;
+    margin-bottom:10px;
+  }
+  ol.list li:last-child{margin-bottom:0;}
+  ol.list li::before{
+    content:counter(n);
+    position:absolute;
+    left:0;
+    top:4px;
+    width:17px;
+    height:17px;
+    border-radius:6px;
+    background:#fdf1f6;
+    color:#cd8ba8;
+    font-size:10px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  ul.adv{list-style:none;margin:0;padding:0;}
+  ul.adv li{
+    position:relative;
+    padding:0 0 0 20px;
+    font-size:14.5px;
+    line-height:1.8;
+    color:#443a4c;
+    margin-bottom:10px;
+  }
+  ul.adv li:last-child{margin-bottom:0;}
+  ul.adv li::before{
+    content:"";
+    position:absolute;
+    left:3px;
+    top:10px;
+    width:5px;
+    height:5px;
+    border-radius:50%;
+    background:#c9a6e8;
+  }
+  .flag{
+    font-size:13.5px;
+    line-height:1.8;
+    color:#6b4650;
+    background:#fff6f5;
+    border-left:3px solid #ef9c9c;
+    border-radius:10px;
+    padding:12px 14px;
+  }
+  .duo{display:flex;gap:10px;}
+  .duo .item{
+    flex:1;
+    background:#fbf7fb;
+    border:1px solid #f2eaf4;
+    border-radius:14px;
+    padding:12px 13px;
+  }
+  .duo .item b{
+    display:block;
+    font-size:13px;
+    color:#6d5b78;
+    margin-bottom:6px;
+    font-weight:600;
+  }
+  .duo .item p{
+    margin:0;
+    font-size:12.5px;
+    line-height:1.75;
+    color:#8b8095;
+  }
+  .divider{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:24px 0 16px;
+    font-size:11px;
+    letter-spacing:.2em;
+    color:#b3a2ad;
+  }
+  .divider::before,.divider::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:linear-gradient(90deg,rgba(235,220,230,0),#ecdde6,rgba(235,220,230,0));
+  }
+  .zhead{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .zicon{
+    width:44px;
+    height:44px;
+    flex:0 0 44px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:19px;
+    color:#fff;
+    background:linear-gradient(135deg,#f19dbb,#a98cf0);
+    box-shadow:0 8px 18px rgba(214,140,170,.24);
+  }
+  .zicon.fire{background:linear-gradient(135deg,#ff9d7a,#ef6b8c);}
+  .zicon.earth{background:linear-gradient(135deg,#c9b07a,#8fae86);}
+  .zicon.air{background:linear-gradient(135deg,#a9c8f5,#b49cf0);}
+  .zicon.water{background:linear-gradient(135deg,#8fc9e8,#9a9de8);}
+  .zname{font-size:17px;font-weight:600;color:#3b3242;letter-spacing:-.1px;}
+  .zmeta{font-size:11.5px;color:#a397ac;margin-top:3px;}
+  .etag{
+    display:inline-block;
+    font-size:11px;
+    color:#8f6f88;
+    background:#fdf2f7;
+    border:1px solid #f6e2ec;
+    border-radius:999px;
+    padding:4px 10px;
+    margin-right:6px;
+  }
+  .ztext{
+    font-size:14px;
+    line-height:1.85;
+    color:#4a3f51;
+    margin:0 0 12px;
+  }
+  .zitem{
+    font-size:13.5px;
+    line-height:1.85;
+    color:#4a3f51;
+    background:#fbf7fb;
+    border:1px solid #f4ecf5;
+    border-radius:14px;
+    padding:13px 14px;
+    margin-bottom:10px;
+  }
+  .zitem b{
+    display:block;
+    font-size:11.5px;
+    letter-spacing:.1em;
+    color:#b393a4;
+    font-weight:600;
+    margin-bottom:7px;
+  }
+  .sharebox{
+    font-size:13px;
+    line-height:1.9;
+    color:#4c4254;
+    background:#fbf7fb;
+    border:1px dashed #ead9e4;
+    border-radius:14px;
+    padding:14px 15px;
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .copybtn{
+    display:block;
+    width:100%;
+    margin-top:12px;
+    border:0;
+    border-radius:12px;
+    padding:13px 0;
+    font-family:inherit;
+    font-size:16px;
+    font-weight:600;
+    color:#fff;
+    background:linear-gradient(120deg,#efa0b6,#b39cf0);
+    cursor:pointer;
+    transition:opacity .2s;
+  }
+  .copybtn:active{opacity:.85;}
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:40px;
+    bottom:calc(40px + env(safe-area-inset-bottom));
+    transform:translate(-50%,14px);
+    font-size:13px;
+    color:#fff;
+    background:rgba(58,46,64,.92);
+    border-radius:999px;
+    padding:9px 18px;
+    opacity:0;
+    pointer-events:none;
+    transition:all .26s ease;
+    z-index:99;
+  }
+  .toast.on{opacity:1;transform:translate(-50%,0);}
+  .result-foot{
+    margin-top:16px;
+    font-size:11px;
+    line-height:1.8;
+    color:#ada3b2;
+    text-align:center;
+  }
+  /* ================= 移动端本地文件（file://）兼容补丁 ================= */
+  /* 可点元素：消除 300ms 延迟与误触高亮 */
+  button,select,label,.mode,.gbtn,.opt,.btn,.back,.copybtn,.pick,.fx{
+    -webkit-tap-highlight-color:rgba(226,104,140,.12);
+    touch-action:manipulation;
+  }
+  /* 长页面滚动顺滑，禁止 iOS 橡皮筋把底部按钮推出视野 */
+  .app{-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;}
+  /* 底部操作区安全区留白（全面屏） */
+  .copybtn{margin-bottom:calc(4px + env(safe-area-inset-bottom));}
+  .result-foot{padding-bottom:calc(6px + env(safe-area-inset-bottom));}
+
+  /* 本地文件（file://）打开提示条 */
+  .filetip{
+    position:sticky;
+    top:0;
+    z-index:60;
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    margin:0;
+    padding:calc(11px + env(safe-area-inset-top)) 14px 11px;
+    font-size:12.5px;
+    line-height:1.65;
+    color:#7a5f6b;
+    background:#fdf1f4;
+    border-bottom:1px solid #f4dfe6;
+  }
+  .filetip[hidden]{display:none;}
+  .filetip .ftx{flex:1;word-break:break-word;}
+  .filetip .fx{
+    flex:0 0 auto;
+    width:26px;height:26px;
+    margin-top:-2px;
+    border:0;border-radius:8px;
+    background:rgba(255,255,255,.92);
+    color:#a58f9b;
+    font-size:16px;line-height:1;
+    cursor:pointer;
+  }
+  .filetip .fx:active{background:#fff;}
+  /* ---------- 小屏高度压缩（短屏手机首屏尽量露出开始按钮） ---------- */
+  @media (max-height:760px){
+    .badge{margin-bottom:12px;padding:6px 13px;}
+    .cover h1{font-size:23px;line-height:1.34;margin-bottom:10px;}
+    .cover .sub{font-size:12.5px;line-height:1.62;margin-bottom:13px;}
+    .chips{margin-bottom:13px;}
+    .modes{gap:8px;margin-bottom:12px;}
+    .mode{padding:11px 13px;}
+    .mode .md{font-size:12px;line-height:1.55;}
+    .panel{padding:12px 13px 13px;margin-bottom:12px;}
+    .gbtn{padding:9px 6px;}
+    .bday{margin-top:9px;}
+    .bday select{padding:9px 26px 9px 12px;}
+    .hint{margin-top:7px;}
+  }
+  @media (max-height:660px){
+    .badge{display:none;}
+    .chips{display:none;}
+    .cover h1{font-size:21px;margin-bottom:8px;}
+    .cover .sub{margin-bottom:10px;}
+  }
+  /* ---------- 静态指引（纯 HTML/CSS，不依赖 JS；脚本执行后立即隐藏） ---------- */
+  .sgwrap{max-width:520px;margin:0 auto;padding:14px 14px 6px;text-align:left;}
+  .sg-noscript{
+    margin:0 0 12px;padding:14px 16px;
+    background:#fff4d6;border:1px solid #f0d089;border-left:6px solid #e0a800;
+    border-radius:12px;font-size:16px;line-height:1.8;color:#6b4b00;font-weight:700;
+  }
+  .sg-tip{
+    background:#fff6f8;border:1px solid #f3d9e2;border-left:6px solid #e2688c;
+    border-radius:12px;padding:13px 15px;margin-bottom:12px;
+    box-shadow:0 4px 14px rgba(220,170,190,.14);
+    font-size:14px;line-height:1.8;color:#3c3346;
+  }
+  .sg-tip .sgtitle{display:block;font-size:15.5px;font-weight:700;color:#b8395f;margin-bottom:6px;}
+  .sg-tip .os{display:block;}
+  .sg-tip .os b{color:#b8395f;}
+  .sg-card{
+    background:#ffffff;border:1px solid #eae0ef;border-left:6px solid #a98cf0;
+    border-radius:12px;padding:15px 17px;box-shadow:0 6px 18px rgba(170,140,200,.10);
+  }
+  .sg-card h2{font-size:17px;line-height:1.5;margin:0 0 10px;color:#4a3a55;font-weight:700;}
+  .sg-steps{margin:0 0 11px;padding-left:22px;}
+  .sg-steps li{font-size:14px;line-height:1.85;margin-bottom:5px;color:#3c3346;}
+  .sg-steps li b{color:#b8395f;}
+  .sg-note{
+    font-size:13px;line-height:1.8;color:#7d6f88;margin:0;
+    border-top:1px dashed #ece2f2;padding-top:10px;
+  }
+  .sg-foot{font-size:12px;line-height:1.7;color:#a99cb4;margin:10px 0 0;text-align:center;}
+</style>
+</head>
+<body>
+
+<!-- ===== 静态指引：纯 HTML + CSS，不依赖 JS。脚本一旦执行会立即隐藏本区块 ===== -->
+<div class="sgwrap" id="sgWrap">
+  <noscript>
+    <div class="sg-noscript">
+      当前预览环境没有执行脚本，页面上的按钮暂时点不动。<br>
+      请按下面说明，用手机浏览器重新打开这个文件，再开始测试。
+    </div>
+  </noscript>
+  <div class="sg-tip">
+    <span class="sgtitle">这份测试需要在「浏览器」里打开才能点得动</span>
+    <span class="os"><b>iPhone</b>：点右上角「···」→「在浏览器中打开」（Safari）</span>
+    <span class="os"><b>安卓</b>：点右上角「···」→「用其他应用打开」→ 选择「Chrome」或「浏览器」</span>
+  </div>
+  <div class="sg-card">
+    <h2>如何正确打开（约 10 秒）</h2>
+    <ol class="sg-steps">
+      <li>看屏幕<b>右上角</b>，点「<b>···</b>」或「<b>⋮</b>」菜单</li>
+      <li>iPhone 选「<b>在浏览器中打开</b>」；安卓选「<b>用其他应用打开</b>」→「<b>Chrome</b>」或「<b>浏览器</b>」</li>
+      <li>在浏览器里打开后，页面会出现「开始测试」按钮，正常答题即可</li>
+    </ol>
+    <p class="sg-note">
+      为什么点不动：微信 / QQ 打开 .html 文件时只做「文件预览」，不执行页面里的脚本，所以按钮没有反应；<br>
+      同一个文件用浏览器打开就完全正常，测试结果也在你手机上本地计算，不会上传。
+    </p>
+  </div>
+  <p class="sg-foot">若手机里没有任何浏览器能打开 html 文件，可先把文件转存到「文件管理」，再用系统浏览器打开。</p>
+</div>
+<script>try{var _sg=document.getElementById("sgWrap");if(_sg){_sg.style.display="none";}}catch(e){}</script>
+<div class="filetip" id="fileTip" hidden>
+  <span class="ftx" id="fileTipText">已本地打开。若点击无反应，请用浏览器打开此文件。</span>
+  <button class="fx" id="fileTipClose" type="button" aria-label="关闭提示">×</button>
+</div>
+<div class="app">
+
+  <!-- 封面 -->
+  <section class="screen active" id="cover">
+    <div class="cover">
+      <div class="badge">恋爱人格测试 · 星座滤镜版</div>
+      <h1>测一测<br>你的 <span class="hl">TA</span><br>是什么类型的恋人</h1>
+      <p class="sub">从回消息的节奏、冲突时的反应、谈未来时的眼神，<br>看清 TA 爱人的方式，再加一层星座滤镜。</p>
+
+      <div class="modes" id="modes">
+        <div class="mode sel" data-mode="quick">
+          <div class="mt">快速测试 <span class="tag">10 题 · 约 1 分钟</span></div>
+          <div class="md">抓主线判断，适合先看个大概</div>
+          <span class="pick"></span>
+        </div>
+        <div class="mode" data-mode="precise">
+          <div class="mt">精准测试 <span class="tag">32 题 · 约 4 分钟</span></div>
+          <div class="md">四个阶段逐层深入，区分度更高</div>
+          <span class="pick"></span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="plabel">TA 的信息</div>
+        <div class="grow" id="grow">
+          <button class="gbtn" data-g="male">男</button>
+          <button class="gbtn" data-g="female">女</button>
+          <button class="gbtn sel" data-g="none">不愿透露</button>
+        </div>
+        <div class="bday">
+          <select id="bmonth" aria-label="出生月份"><option value="">月份</option></select>
+          <select id="bday" aria-label="出生日期"><option value="">日期</option></select>
+          <span class="unit">公历</span>
+        </div>
+        <div class="hint" id="bdayHint">先选 TA 的生日，才能算出星座</div>
+        <div class="signpeek" id="signPeek">星座位：<b id="signPeekName"></b></div>
+      </div>
+
+      <button class="btn" id="startBtn">开始测试</button>
+      <p class="foot">凭第一直觉作答 · 共 15 种结果 · 不会记录任何信息</p>
+    </div>
+  </section>
+
+  <!-- 答题 -->
+  <section class="screen" id="quiz">
+    <div class="qhead">
+      <button class="back" id="backBtn">← 上一题</button>
+      <span class="count" id="counter">01 / 10</span>
+    </div>
+    <div class="stagebar" id="stagebar"></div>
+    <div class="track"><i id="bar"></i></div>
+    <div class="stagename" id="stagename"></div>
+    <p class="qtext" id="qtext"></p>
+    <div class="opts" id="opts"></div>
+  </section>
+
+  <!-- 过场 -->
+  <section class="screen" id="pass">
+    <div class="pass">
+      <div class="big" id="passBig">1 / 4</div>
+      <h2 id="passTitle"></h2>
+      <p id="passDesc"></p>
+      <div class="peek" id="passPeek"></div>
+      <button class="btn" id="passBtn">继续下一阶段</button>
+    </div>
+  </section>
+
+  <!-- 结果 -->
+  <section class="screen" id="result">
+    <div class="card">
+      <div class="rlabel">LAYER 1 · 你的 CRUSH 是</div>
+      <h2 class="rtitle" id="rtitle"></h2>
+      <p class="rsub" id="rsub"></p>
+      <div class="kws" id="kws"></div>
+      <p class="quote" id="quote"></p>
+
+      <div class="sec">
+        <h3>倾向分布</h3>
+        <div class="bars" id="bars"></div>
+      </div>
+
+      <div class="sec">
+        <h3>三个典型表现</h3>
+        <ol class="list" id="behaviors"></ol>
+      </div>
+
+      <div class="sec">
+        <h3>两条相处建议</h3>
+        <ul class="adv" id="advice"></ul>
+      </div>
+
+      <div class="sec">
+        <h3>需要留意的信号</h3>
+        <div class="flag" id="flag"></div>
+      </div>
+
+      <div class="sec">
+        <h3>你的副类型</h3>
+        <div class="duo" id="duo"></div>
+      </div>
+
+      <div class="divider">LAYER 2 · 星座滤镜</div>
+      <div class="zhead">
+        <div class="zicon" id="zicon">♈</div>
+        <div>
+          <div class="zname" id="zname"></div>
+          <div class="zmeta" id="zmeta"></div>
+        </div>
+      </div>
+      <div id="etags" style="margin-bottom:14px;"></div>
+      <p class="ztext" id="zbase"></p>
+      <div class="zitem">
+        <b>星座 × 依恋类型</b>
+        <span id="zatt"></span>
+      </div>
+      <div class="zitem">
+        <b>星座 × 角色型恋人</b>
+        <span id="zrole"></span>
+      </div>
+
+      <div class="divider">LAYER 3 · 分享文案</div>
+      <div class="sharebox" id="sharebox"></div>
+      <button class="copybtn" id="copyBtn">复制这段文案</button>
+    </div>
+
+    <button class="btn" id="retest" style="margin-top:18px;">重新测试</button>
+    <button class="btn ghost" id="toCover">回到封面 · 改信息</button>
+    <p class="result-foot">结果基于依恋理论、流行恋爱人格标签与娱乐向星座解读，<br>仅供自我观察与分享，不构成任何诊断。</p>
+  </section>
+
+</div>
+<div class="toast" id="toast">已复制</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ========== 依恋类型（主维度） ========== */
+  var ATT = {
+    secure: {
+      name: "安全型",
+      kws: ["稳定", "直球", "不试探", "边界清爽"],
+      portrait: "TA 相信关系是稳的：不用试探来确认，也不用疏远来自保。",
+      behaviors: [
+        "情绪不舒服会直接说，说完就翻篇，不积攒也不冷战。",
+        "TA 能接受你有自己的世界——你忙起来 TA 不追问，见面时照样亲。",
+        "TA 不需要你反复证明喜欢 TA，也不会用「突然消失」来测试你。"
+      ],
+      advice: [
+        "对 TA 最好的珍惜是「有话直说」：TA 接得住真实，别用试探去消耗这份稳。",
+        "别把「稳定」当成「理所当然」，TA 的包容也需要被看见和回应。"
+      ],
+      flag: "过度的平静有时是「不想麻烦你」——要分清是真的没事，还是 TA 把情绪自己咽了下去。"
+    },
+    anxious: {
+      name: "焦虑型",
+      kws: ["高敏感", "要确认", "易内耗", "爱得用力"],
+      portrait: "TA 需要很多确认，爱意一旦模糊，心里就开始响警报。",
+      behaviors: [
+        "消息回慢了，TA 会自己补出一整套剧本：是不是烦我了、是不是有别人了。",
+        "TA 会反复问「你还喜欢我吗」——不是不信你，是不太信自己值得。",
+        "TA 的付出常带着紧张感：做很多，然后小心地等你回应。"
+      ],
+      advice: [
+        "对焦虑型最有效的是「可预期」：固定的联系节奏，比偶尔的盛大浪漫更让 TA 安心。",
+        "给 TA 明确的语言而不是让 TA 猜，「我在忙，晚上找你」能省掉 TA 三小时的内耗。"
+      ],
+      flag: "当确认变成查岗、不安变成控制，爱就开始变成了消耗。"
+    },
+    avoidant: {
+      name: "回避型",
+      kws: ["独立", "避重就轻", "慢热", "不擅表达"],
+      portrait: "TA 珍视独立，靠得太近会本能地想退回自己的世界。",
+      behaviors: [
+        "关系正顺利时 TA 反而会突然「忙起来」，用距离给自己降噪。",
+        "TA 不太说感受，习惯把情绪自己处理完再出现，像什么都没发生。",
+        "TA 不是不在乎，只是把「不麻烦别人」当成一种体面。"
+      ],
+      advice: [
+        "给回避型留门、别堵门：用具体邀请（周末一起吃饭？）代替抽象要求（你到底爱不爱我）。",
+        "尊重 TA 的独处，也要说清你的底线——「我需要每周有一次真正的对话」。"
+      ],
+      flag: "长期用忙碌和沉默推迟所有严肃议题，是在把你留在一个「不承诺未来」的位置。"
+    },
+    fearful: {
+      name: "恐惧型",
+      kws: ["忽冷忽热", "试探", "矛盾", "怕被丢下"],
+      portrait: "TA 一边想要亲密，一边预演失去，靠近和抽离都来得很快。",
+      behaviors: [
+        "TA 会在最亲密的那一刻突然冷下来，像被什么烫到一样。",
+        "TA 会用「试探性的伤害」确认你的在乎：先推开你，再看你走不走。",
+        "TA 的情绪起伏很大，事后常常后悔，但下一次依旧控制不住。"
+      ],
+      advice: [
+        "对恐惧型最需要的是「不被推走」：稳定的回应比任何道理都有用，但稳定不等于无限度忍耐。",
+        "和 TA 约定「我现在需要冷静一小时，之后我会回来」，把撤退变成可预期。"
+      ],
+      flag: "当忽冷忽热成了日常，你的情绪开始围着 TA 的心情转，就该认真算算这段关系的代价。"
+    }
+  };
+
+  /* ========== 角色型恋人（次维度） ========== */
+  var ROLE = {
+    guide: {
+      name: "引导型",
+      short: "带方向的人",
+      portrait: "TA 喜欢帮你理清思路、推着你往前走，前提是尊重你的决定权。",
+      behaviors: [
+        "你纠结时，TA 把事情拆成几条，然后问「你自己最想要哪个」。",
+        "TA 分享经验，也不忘补一句「这只是我的想法，你自己定」。",
+        "TA 欣赏你变好的样子，会推你去试一直不敢试的事。"
+      ],
+      advice: [
+        "TA 给建议时，先接住感谢再表达偏好——引导型最怕「好心被当成说教」。",
+        "如果「为你好」开始越过你的决定权，请直接说出来：健康的引导经得起这句话。"
+      ],
+      flag: "当「我比你懂」变成否决你的选择，引导就滑向了控制。",
+      mod: "更容易长出「我带你走」的方向感，也更容易不小心越过你的决定权"
+    },
+    dependent: {
+      name: "依附型",
+      short: "想被安排的人",
+      portrait: "TA 习惯把选择权交出去，被照顾的时候最安心。",
+      behaviors: [
+        "「你想吃什么」「你决定吧」是 TA 最常说的两句话。",
+        "TA 很快把你放进生活中心，也希望你同样把 TA 放进去。",
+        "TA 不太敢表达不满，怕一表达你就会走。"
+      ],
+      advice: [
+        "别替 TA 做所有决定——每一次「你怎么想」，都是在帮 TA 把自我找回来。",
+        "TA 的顺从不是没脾气，是怕失去；鼓励 TA 说真话，关系才能双向。"
+      ],
+      flag: "过度依附会让 TA 失去边界，最后连「喜欢」都变成了「需要」。",
+      mod: "更容易在你身上安放依赖，也更需要你明确的态度来定心"
+    },
+    rescuer: {
+      name: "拯救型",
+      short: "习惯兜底的人",
+      portrait: "TA 容易被「需要被拯救」的人吸引，习惯兜底、习惯付出。",
+      behaviors: [
+        "你一喊难，TA 比你还急，恨不得替你扛下来。",
+        "TA 常在关系里当「修理工」：修你的情绪、修你的生活、修你的过去。",
+        "TA 付出很多却很少开口要，然后默默积攒委屈。"
+      ],
+      advice: [
+        "别只让 TA 当那个「能扛的人」，偶尔让 TA 被照顾，TA 才不会在关系里耗空。",
+        "分清「TA 想帮」和「你需不需要帮」：过度拯救会让被帮的人失去力量。"
+      ],
+      flag: "当付出开始附带「我为你做了这么多」，爱就变成了账本。",
+      mod: "更容易心软兜底，也更不容易说出口「我也需要人帮」"
+    },
+    playmate: {
+      name: "玩伴型",
+      short: "一起玩的人",
+      portrait: "TA 用一起玩、一起体验来靠近你，不喜欢把关系说得太沉。",
+      behaviors: [
+        "TA 约你多半是「这个展、这家店、这个游戏」，而不是「我们谈谈」。",
+        "TA 能把无聊的日常过得好玩，冲突时也常用玩笑绕过去。",
+        "TA 靠新鲜感和共鸣维系关系，太久重复的相处模式会让 TA 走神。"
+      ],
+      advice: [
+        "享受轻松，但重要的话要挑明说——玩伴型最容易把严肃议题一直往后拖。",
+        "和 TA 一起制造新体验，比反复追问「我们到底是什么关系」更有效。"
+      ],
+      flag: "只在开心的时候出现、一遇到沉重就换话题，关系就永远停在表层。",
+      mod: "更需要新鲜感和玩得来的默契，也更怕关系变得太沉"
+    },
+    caregiver: {
+      name: "照顾者型",
+      short: "默默迁就的人",
+      portrait: "TA 把你的需求放在前面，默默迁就，很少提自己的。",
+      behaviors: [
+        "TA 记得你不吃香菜、几点犯困，比你自己还清楚。",
+        "冲突时 TA 先低头，哪怕错的不在 TA。",
+        "TA 会把「我没事」说得很自然，然后继续照顾你。"
+      ],
+      advice: [
+        "主动问 TA「你想要什么」——照顾者很少主动开口，但一直被忽略会凉。",
+        "别让 TA 的迁就变成默认设置，偶尔换你安排、你兜底。"
+      ],
+      flag: "长期的单向付出会变成隐性的怨气，然后某一天一次性爆发。",
+      mod: "把体贴做得更细，也更容易把自己的需求排到最后"
+    },
+    soulmate: {
+      name: "灵魂共鸣型",
+      short: "要对上频道的人",
+      portrait: "TA 在意三观与内心的对齐，精神不通，靠得再近也不够。",
+      behaviors: [
+        "TA 能和你聊到凌晨三点，从一部电影聊到各自的恐惧。",
+        "TA 对「你懂我」的要求很高，一次没接住就会失落很久。",
+        "TA 不太在意形式，但在意你有没有真的在听。"
+      ],
+      advice: [
+        "和 TA 建立「深度对话」的习惯，日常寒暄满足不了 TA。",
+        "允许彼此有不完全同步的部分——共鸣不必是每一句都对上。"
+      ],
+      flag: "当「你懂我」变成考核标准，关系就成了一场持续的失望。",
+      mod: "更在意「你到底懂不懂我」，也更容易在一句话上失望"
+    },
+    independent: {
+      name: "独立型",
+      short: "有自己世界的人",
+      portrait: "TA 爱归爱，但一定要留自己的空间、事业和圈子。",
+      behaviors: [
+        "TA 很少报备行程，也不觉得你需要知道。",
+        "TA 能长时间不联系也毫无不安，见面时自然得像没分开过。",
+        "TA 欣赏有自己世界的伴侣，讨厌被关系捆住手脚。"
+      ],
+      advice: [
+        "别用「黏」来证明爱——对 TA 而言，给空间才是信任的表达。",
+        "把需求说成具体的约定，而不是情绪化的指责，TA 才接得住。"
+      ],
+      flag: "当「需要空间」成为回避一切亲密的挡箭牌，你会在关系里长期一个人。",
+      mod: "更坚持自己的节奏和空间，也更不喜欢被追问"
+    },
+    anchor: {
+      name: "靠山型",
+      short: "能托底的人",
+      portrait: "TA 稳、踏实、可预期，用现实托底给你安全感。",
+      behaviors: [
+        "TA 会把事情安排好：行程、路线、你生病时该吃的药。",
+        "TA 不太说情话，但你真出问题时 TA 一定在。",
+        "TA 习惯用「解决」表达关心，而不是用「共情」。"
+      ],
+      advice: [
+        "直接告诉 TA「我现在只想被抱一下，不需要方案」，TA 学得很快。",
+        "TA 的稳定也需要被回应，别把「TA 一直在」当成「TA 不会走」。"
+      ],
+      flag: "如果 TA 只提供功能性的照顾、拒绝谈情绪，关系会很稳，但没有温度。",
+      mod: "更愿意用行动托底，也更少说软话"
+    },
+    romantic: {
+      name: "浪漫梦幻型",
+      short: "心动制造机",
+      portrait: "TA 靠心动和仪式感活着，也容易爱上想象中的人。",
+      behaviors: [
+        "TA 记得纪念日，喜欢突然的惊喜和「只有我们懂」的小仪式。",
+        "TA 很会说动人的话，也很容易在气氛里上头。",
+        "TA 爱的常常是「你该有的样子」，而不是你本来的样子。"
+      ],
+      advice: [
+        "享受浪漫，也看看 TA 在平淡日子里的样子——那才是关系的底色。",
+        "把「感觉」落成具体的行动和承诺，浪漫才不只是气氛。"
+      ],
+      flag: "承诺很多、落实很少，热度过后的冷淡比从未热烈更伤人。",
+      mod: "更容易被气氛和心动带走，也更需要仪式感来续命"
+    },
+    controller: {
+      name: "控制型",
+      short: "想管住的人",
+      portrait: "TA 以爱为名收紧你的选择，用「为你好」换控制权。",
+      behaviors: [
+        "TA 会问你和谁在一起、几点回家，并把这解释成「在乎」。",
+        "TA 习惯替你判断「什么对你好」，不太接受你说不同意。",
+        "TA 的不满常以「你让我失望」的方式出现，让你不断自证。"
+      ],
+      advice: [
+        "在关系早期就把边界说清楚：「我可以分享行程，但不需要被审批」。",
+        "分辨关心和控制只有一条标准：你说「不」之后，TA 尊不尊重。"
+      ],
+      flag: "如果 TA 的爱需要你不断缩小自己的世界来交换，那不是爱，是占有。",
+      mod: "更想把一切纳入掌控，也更难接受一个「不」字"
+    },
+    evader: {
+      name: "逃避型",
+      short: "一遇事就走的人",
+      portrait: "冲突一出现 TA 就沉默、撤退，不愿正面碰那个问题。",
+      behaviors: [
+        "一有矛盾 TA 就「消失」，第二天若无其事地问你吃了吗。",
+        "TA 擅长转移话题，或用一句「你想多了」关掉对话。",
+        "TA 不是不在乎，只是不知道该怎么在冲突里待着。"
+      ],
+      advice: [
+        "别在 TA 退的时候追着吵，约定「冷静两小时后再谈」比当场逼问有效。",
+        "把冲突拆小：一次只谈一件事，TA 更容易留下来。"
+      ],
+      flag: "所有严肃议题都被无限延期，你会在「好像还行」里慢慢耗尽。",
+      mod: "更容易用沉默或走开来降温，也更难把话当场说完"
+    }
+  };
+
+  /* 排序用：展示优先级（主结果同分时取更靠前者） */
+  var ATT_ORDER = ["secure", "anxious", "avoidant", "fearful"];
+  var ROLE_ORDER = ["guide", "dependent", "rescuer", "playmate", "caregiver", "soulmate", "independent", "anchor", "romantic", "controller", "evader"];
+
+  /* ========== 星座数据（按公历，含交界日归属） ========== */
+  var ELEM = {
+    fire:  { name: "火象", trait: "行动力、热烈、凭直觉", word: "热" },
+    earth: { name: "土象", trait: "稳定、现实、能熬", word: "稳" },
+    air:   { name: "风象", trait: "沟通、想法、要距离", word: "轻" },
+    water: { name: "水象", trait: "情绪、共情、记得久", word: "深" }
+  };
+
+  /* m1/d1 起，m2/d2 止（含首尾），跨年由跨年项处理 */
+  var ZODIAC = [
+    {
+      key: "aries", name: "白羊座", icon: "♈", elem: "fire", from: [3, 21], to: [4, 19],
+      base: "爱就冲、气就炸，热烈到不留后路。",
+      style: "白羊直接、性子急，喜欢明着来",
+      att: {
+        secure: "遇到安全型底色，白羊的热会变成长期火力：主动、直说、不记仇，吵完就翻篇。",
+        anxious: "焦虑底色落在白羊身上，是「你不回我就炸」，追问来得又急又直白。",
+        avoidant: "回避底色落在白羊身上，是「我先去忙我的」，转身干脆得让人措手不及。",
+        fearful: "恐惧底色落在白羊身上，是热得快也冷得快的过山车，发完火才后知后觉地后悔。"
+      }
+    },
+    {
+      key: "taurus", name: "金牛座", icon: "♉", elem: "earth", from: [4, 20], to: [5, 20],
+      base: "慢热、长情、认死理，爱都藏在细节里。",
+      style: "金牛慢热又固执，认定了就不太会换",
+      att: {
+        secure: "遇到安全型底色，金牛的稳会落成实打实的日子：一起吃饭、一起存钱、一起过冬。",
+        anxious: "焦虑底色落在金牛身上，是沉默的占有：不说，但会反复确认你还在不在。",
+        avoidant: "回避底色落在金牛身上，是「我不动，你也别推我」，用不变应万变。",
+        fearful: "恐惧底色落在金牛身上，是想抓紧又怕被丢下，于是更固执地抓着旧的安全感。"
+      }
+    },
+    {
+      key: "gemini", name: "双子座", icon: "♊", elem: "air", from: [5, 21], to: [6, 21],
+      base: "快、碎、好奇，心动和走神只差一秒。",
+      style: "双子话多、脑子快，情绪也换得快",
+      att: {
+        secure: "遇到安全型底色，双子的机灵会变成有趣：什么都想跟你讲，也真的会停下来听你说。",
+        anxious: "焦虑底色落在双子身上，是不断地「你在干嘛」，用聊天确认你还在这段关系里。",
+        avoidant: "回避底色落在双子身上，是用玩笑和换话题代替正面回答，把沉重留在门外。",
+        fearful: "恐惧底色落在双子身上，是嘴上轻松、心里反复：一句玩笑背后可能演了三场戏。"
+      }
+    },
+    {
+      key: "cancer", name: "巨蟹座", icon: "♋", elem: "water", from: [6, 22], to: [7, 22],
+      base: "念旧、护短、把「家」当成安全感。",
+      style: "巨蟹念旧又护短，情绪都收在心里慢慢发酵",
+      att: {
+        secure: "遇到安全型底色，巨蟹的照顾会变得踏实：记得你所有习惯，也敢说出自己的需要。",
+        anxious: "焦虑底色落在巨蟹身上，是把你的沉默反复回放，越照顾越怕被抛下。",
+        avoidant: "回避底色落在巨蟹身上，是缩回壳里：不吵不闹，只是慢慢不说了。",
+        fearful: "恐惧底色落在巨蟹身上，是一边把你当家人，一边准备好被丢下的那天。"
+      }
+    },
+    {
+      key: "leo", name: "狮子座", icon: "♌", elem: "fire", from: [7, 23], to: [8, 22],
+      base: "要面子、要偏爱，爱得大方也爱得高调。",
+      style: "狮子要面子也要偏爱，喜欢把爱放在明面上",
+      att: {
+        secure: "遇到安全型底色，狮子的热会把关系照亮：大方介绍你，也大方承认自己需要你。",
+        anxious: "焦虑底色落在狮子身上，是「你为什么不在别人面前提我」，不安藏在自尊后面。",
+        avoidant: "回避底色落在狮子身上，是宁可摆出无所谓，也不肯先说一句想你。",
+        fearful: "恐惧底色落在狮子身上，是骄傲和不安轮流上台：先冷你，再问你为什么不来哄。"
+      }
+    },
+    {
+      key: "virgo", name: "处女座", icon: "♍", elem: "earth", from: [8, 23], to: [9, 22],
+      base: "细致、克制，用「做得好」代替「说得好」。",
+      style: "处女细致又克制，习惯用「做对」来表达在乎",
+      att: {
+        secure: "遇到安全型底色，处女的细心会变成可靠：你随口提的事，TA 都悄悄安排好了。",
+        anxious: "焦虑底色落在处女身上，是反复复盘对话细节，从一句话里找出不安的证据。",
+        avoidant: "回避底色落在处女身上，是用「帮你解决问题」绕开「谈感受」。",
+        fearful: "恐惧底色落在处女身上，是先把关系挑出问题，好让自己提前有退路。"
+      }
+    },
+    {
+      key: "libra", name: "天秤座", icon: "♎", elem: "air", from: [9, 23], to: [10, 23],
+      base: "讲公平、怕冲突，擅长把关系调得好看。",
+      style: "天秤讲平衡、怕撕破脸，习惯把话说得漂亮",
+      att: {
+        secure: "遇到安全型底色，天秤的体贴会变成互相尊重：有分歧也能坐下来好好谈。",
+        anxious: "焦虑底色落在天秤身上，是不断揣摩你的态度，在「要不要问」之间反复拉扯。",
+        avoidant: "回避底色落在天秤身上，是用「都行」「随便」把选择权和责任一起推开。",
+        fearful: "恐惧底色落在天秤身上，是嘴上说没关系，心里已经默默开始往后退。"
+      }
+    },
+    {
+      key: "scorpio", name: "天蝎座", icon: "♏", elem: "water", from: [10, 24], to: [11, 22],
+      base: "浓烈、专一，要么全给，要么全撤。",
+      style: "天蝎爱得浓，界线也划得很清楚",
+      att: {
+        secure: "遇到安全型底色，天蝎的深情会变得踏实：查得不凶，但给得很全。",
+        anxious: "焦虑底色落在天蝎身上，是反复确认忠诚，一点模糊就开始翻旧账。",
+        avoidant: "回避底色落在天蝎身上，是不解释、不交代，用沉默守住自己的底线。",
+        fearful: "恐惧底色落在天蝎身上，是最爱也最防：一边交出全部，一边留好退路。"
+      }
+    },
+    {
+      key: "sagittarius", name: "射手座", icon: "♐", elem: "fire", from: [11, 23], to: [12, 21],
+      base: "要自由、要看世界，最怕被关系关起来。",
+      style: "射手爱自由、说话直，最讨厌被管",
+      att: {
+        secure: "遇到安全型底色，射手的自由会变成带你看世界：走得很远，也会回来找你。",
+        anxious: "焦虑底色落在射手身上，是嘴上说没事、先跑出去玩一圈，回来又追问你想不想 TA。",
+        avoidant: "回避底色落在射手身上，是一谈未来就想往外跑，用「再看看吧」把话题拖过去。",
+        fearful: "恐惧底色落在射手身上，是靠近就想逃、走远又回头，节奏全看当天心情。"
+      }
+    },
+    {
+      key: "capricorn", name: "摩羯座", icon: "♑", elem: "earth", from: [12, 22], to: [1, 19],
+      base: "务实、晚熟，把承诺当责任来扛。",
+      style: "摩羯务实又慢热，习惯先做事再表态",
+      att: {
+        secure: "遇到安全型底色，摩羯的稳会变成长期主义：不太浪漫，但每一步都把你算进去了。",
+        anxious: "焦虑底色落在摩羯身上，是不说想你，只把工作排得更满来压住那份不安。",
+        avoidant: "回避底色落在摩羯身上，是把「忙」当默认答复，用现实挡住所有亲密议题。",
+        fearful: "恐惧底色落在摩羯身上，是明明在意，却先在心里演练了一遍分开的流程。"
+      }
+    },
+    {
+      key: "aquarius", name: "水瓶座", icon: "♒", elem: "air", from: [1, 20], to: [2, 18],
+      base: "疏离又独特，要「懂」，不要「黏」。",
+      style: "水瓶重精神、要空间，讨厌被定义",
+      att: {
+        secure: "遇到安全型底色，水瓶的独特会变成舒服的相处：各过各的，也能聊到心底。",
+        anxious: "焦虑底色落在水瓶身上，是嘴上讲道理，心里反复确认你是不是更懂别人。",
+        avoidant: "回避底色落在水瓶身上，是把距离说成「我们都需要空间」，然后就不回来了。",
+        fearful: "恐惧底色落在水瓶身上，是一边想靠得很近，一边强调「我不需要谁」。"
+      }
+    },
+    {
+      key: "pisces", name: "双鱼座", icon: "♓", elem: "water", from: [2, 19], to: [3, 20],
+      base: "共情、做梦，容易把爱人想成理想中的人。",
+      style: "双鱼共情强、爱做梦，情绪容易被带着走",
+      att: {
+        secure: "遇到安全型底色，双鱼的柔软会变成治愈：温柔有了边界，才不会把自己耗尽。",
+        anxious: "焦虑底色落在双鱼身上，是把你的沉默读成抛弃，然后自己先在心里哭了一场。",
+        avoidant: "回避底色落在双鱼身上，是不吵不闹地退回幻想里，用一句「算了」结束对话。",
+        fearful: "恐惧底色落在双鱼身上，是既想被救，又不敢相信有人会真的留下来。"
+      }
+    }
+  ];
+
+  /* 星座 → 元素标签补充句 */
+  var ELEM_SENT = {
+    fire:  "火象的行动力会把 TA 的爱变成「做了什么」，热烈看得见，但热度需要人接。",
+    earth: "土象的现实感会把 TA 的爱变成「撑得住」，不擅长说，但很少掉链子。",
+    air:   "风象的沟通欲会把 TA 的爱变成「聊得来」，需要交流喂饱，也需要各自的空间。",
+    water: "水象的感受力会把 TA 的爱变成「记得住」，情绪浓度高，也更容易被一句话戳到。"
+  };
+
+  /* 性别 → 只影响称呼与场景用语，永不参与计分 */
+  var GENDER = {
+    male:   { label: "男生", phrase: "一个习惯把心事收着的男生", scene: "在朋友局里也护着你" },
+    female: { label: "女生", phrase: "一个把情绪藏得很好的女生", scene: "在朋友面前也想牵着你" },
+    none:   { label: "未透露", phrase: "一个不太爱把话说满的人", scene: "在人前也会悄悄靠近你" }
+  };
+
+  /* ========== 题库 ==========
+     每条选项 = [文案, 依恋权重, 角色权重]
+     视角统一为「观察 TA」；快速 10 题，精准 32 题（4 阶段 × 8 题）
+  */
+
+  var QSHORT_RAW = [
+    { q: "TA 回消息的节奏大概是",
+      o: [
+        ["基本秒回，还会顺着话题多聊两句", { secure: 2 }, { soulmate: 2, anchor: 1, playmate: 1 }],
+        ["回得不快，但每条都写得很认真", { avoidant: 2 }, { soulmate: 2, independent: 1 }],
+        ["忽快忽慢，你永远猜不到下一秒", { anxious: 3 }, { dependent: 2, romantic: 1 }],
+        ["常常已读不回，过很久又突然出现", { fearful: 3 }, { evader: 2 }]
+      ] },
+    { q: "你说「今天心情很差」，TA 的第一反应是",
+      o: [
+        ["先问你发生了什么，然后安静陪着你", { secure: 2 }, { caregiver: 3 }],
+        ["帮你把事情拆成一二三，给建议", { secure: 1 }, { guide: 3, controller: 1 }],
+        ["「别想了，我们去吃点好的」", { avoidant: 2 }, { playmate: 3 }],
+        ["「谁让你不开心了，我去说两句」", { anxious: 2 }, { rescuer: 3, romantic: 1 }]
+      ] },
+    { q: "关于见面这件事，TA 更像",
+      o: [
+        ["主动提，时间地点都安排得清楚", { secure: 2 }, { anchor: 2, guide: 1 }],
+        ["你说去哪就去哪，主要就是陪着你", { anxious: 2 }, { dependent: 3 }],
+        ["很少主动，但你约基本都会来", { avoidant: 2 }, { independent: 2 }],
+        ["见面常常是来帮你处理麻烦事的", { secure: 1 }, { rescuer: 3, anchor: 2 }]
+      ] },
+    { q: "你们第一次有小摩擦，TA 的处理是",
+      o: [
+        ["当下就说开，说完像没发生过", { secure: 3 }, { soulmate: 1 }],
+        ["说句「没事」，然后安静了很久", { avoidant: 2 }, { evader: 2 }],
+        ["反复确认「你是不是没那么喜欢我了」", { anxious: 3 }, { dependent: 2 }],
+        ["先道歉，过一会儿又突然发火", { fearful: 3 }, { controller: 1 }]
+      ] },
+    { q: "TA 会主动跟你分享生活里的小事吗",
+      o: [
+        ["会，路边一只猫都要拍给你看", { secure: 2 }, { playmate: 2, romantic: 1 }],
+        ["很少，主要聊具体的事或正事", { avoidant: 2 }, { independent: 2 }],
+        ["只在自己状态好的时候分享，低落就消失", { fearful: 3 }, { evader: 2 }],
+        ["分享很多，也希望你每条都回应", { anxious: 2 }, { dependent: 2, caregiver: 1, soulmate: 1 }]
+      ] },
+    { q: "聊到未来时，TA 是",
+      o: [
+        ["愿意讲具体的打算，也会问你的想法", { secure: 2 }, { soulmate: 1, anchor: 1 }],
+        ["说得很大很浪漫，细节总是模糊的", { anxious: 2 }, { romantic: 3 }],
+        ["会帮你分析利弊，甚至替你把路规划好", { secure: 1 }, { guide: 3, controller: 1 }],
+        ["「先过好现在吧」，一聊就换话题", { avoidant: 2 }, { evader: 2 }]
+      ] },
+    { q: "TA 状态最差的那几天，通常是",
+      o: [
+        ["会告诉你，也允许你陪着", { secure: 2 }, { soulmate: 2 }],
+        ["完全消失，自己熬过去再回来", { avoidant: 3 }, { independent: 2 }],
+        ["需要你不断确认「我在」", { anxious: 2 }, { dependent: 3 }],
+        ["一边把你推开，一边盼着你追上来", { fearful: 3 }, { evader: 1 }]
+      ] },
+    { q: "你遇上麻烦事，TA 会",
+      o: [
+        ["帮你把问题拆开，让你自己选", { secure: 2 }, { guide: 3, anchor: 2 }],
+        ["直接替你办掉，不太问你意见", { anxious: 1 }, { controller: 3, caregiver: 2 }],
+        ["比你还急，冲在前面护着你", { anxious: 2 }, { rescuer: 3, caregiver: 1 }],
+        ["安慰两句，然后事情就过去了", { avoidant: 2 }, { evader: 1, independent: 1 }]
+      ] },
+    { q: "TA 表达喜欢的方式更像",
+      o: [
+        ["记住你随口说过的小事，然后默默做到", { secure: 2 }, { caregiver: 3, soulmate: 1 }],
+        ["情话、惊喜、仪式感，一样都不少", { fearful: 1 }, { romantic: 3, playmate: 2 }],
+        ["每天固定聊天，行程大概都知道", { anxious: 2 }, { anchor: 2, dependent: 1 }],
+        ["讲 TA 懂的东西，带你看更大的世界", { secure: 1 }, { guide: 3, controller: 1 }]
+      ] },
+    { q: "你忙了两天没怎么理 TA，TA 会",
+      o: [
+        ["照旧安排好自己的事，见面时一切正常", { secure: 2 }, { independent: 2, anchor: 1 }],
+        ["嘴上不说，但明显退了半步", { avoidant: 2 }, { evader: 1, independent: 1 }],
+        ["连着发「在忙吗」「是不是生气了」", { anxious: 3 }, { dependent: 1, romantic: 1 }],
+        ["突然变热情，或者说几句刺人的话", { fearful: 3 }, { controller: 2 }]
+      ] }
+  ];
+
+  var QLONG_RAW = [
+    /* ---- 阶段一：日常相处 ---- */
+    { q: "TA 回消息的节奏大概是",
+      o: [
+        ["基本秒回，还会顺着话题多聊两句", { secure: 2 }, { soulmate: 2, anchor: 1 }],
+        ["回得不快，但每条都写得很认真", { avoidant: 2 }, { soulmate: 2, independent: 1 }],
+        ["忽快忽慢，你永远猜不到下一秒", { anxious: 3 }, { dependent: 2, romantic: 1 }],
+        ["常常已读不回，过很久又突然出现", { fearful: 3 }, { evader: 2 }]
+      ] },
+    { q: "TA 有没有固定的「每天都会」",
+      o: [
+        ["有，早安晚安几乎不落", { secure: 2 }, { anchor: 3, romantic: 1 }],
+        ["想起来就发，没什么规律", { avoidant: 2 }, { playmate: 2 }],
+        ["有，哪天没收到 TA 会追问", { anxious: 2 }, { dependent: 2, controller: 1 }],
+        ["有时连着几天很热，有时突然断掉", { fearful: 3 }, { evader: 1 }]
+      ] },
+    { q: "一起吃饭点菜时，TA 通常",
+      o: [
+        ["先问你想吃什么，再补上自己的偏好", { secure: 2 }, { caregiver: 2, soulmate: 1 }],
+        ["直接帮你点好，还觉得这样很贴心", { anxious: 1 }, { controller: 3, caregiver: 1 }],
+        ["「你定就行，我都行」", { avoidant: 2 }, { dependent: 2 }],
+        ["研究半天菜单，认真到有点好笑", { secure: 1 }, { guide: 2, anchor: 1, playmate: 1 }]
+      ] },
+    { q: "走在路上，TA 的位置感是",
+      o: [
+        ["自然地牵着你，或者一直靠近你", { secure: 2 }, { romantic: 2, playmate: 1 }],
+        ["并排走，但不太主动有身体接触", { avoidant: 2 }, { independent: 2, soulmate: 1 }],
+        ["会一直跟着你，怕你走丢", { anxious: 2 }, { dependent: 2, caregiver: 1 }],
+        ["一会儿很黏，一会儿自己走快了", { fearful: 3 }, { evader: 1 }]
+      ] },
+    { q: "你随口说过的小事，TA 记得吗",
+      o: [
+        ["大多记得，还会在某天默默做到", { secure: 2 }, { caregiver: 3, anchor: 1, rescuer: 1 }],
+        ["大事记得，细节不太在意", { avoidant: 1 }, { independent: 2, anchor: 1 }],
+        ["记得，还会反复提「我记着呢」", { anxious: 2 }, { romantic: 2, dependent: 1 }],
+        ["记不记得看状态，有时认真有时全忘", { fearful: 2 }, { playmate: 1, evader: 1 }]
+      ] },
+    { q: "你和朋友出去玩，TA 的反应是",
+      o: [
+        ["问一句玩得开心吗，然后自己安排时间", { secure: 2 }, { independent: 2 }],
+        ["想知道都有谁、几点回", { anxious: 2 }, { controller: 3 }],
+        ["基本不问，也不太关心", { avoidant: 3 }, { independent: 1 }],
+        ["先祝你玩好，后来突然情绪不好", { fearful: 3 }, { evader: 1 }]
+      ] },
+    { q: "TA 身边的人知道你的存在吗",
+      o: [
+        ["自然地提起，也愿意一起见朋友", { secure: 3 }, { romantic: 1 }],
+        ["提过，但不多，也不主动带你见人", { avoidant: 2 }, { evader: 1, independent: 1 }],
+        ["会提，而且很在意别人怎么看你们", { anxious: 2 }, { controller: 2, romantic: 1 }],
+        ["说法前后不一致，有时公开有时藏着", { fearful: 2 }, { evader: 2 }]
+      ] },
+    { q: "一起做很无聊的事（排队、等车）时，TA",
+      o: [
+        ["能聊起来，安静也不尴尬", { secure: 2 }, { soulmate: 2, playmate: 1 }],
+        ["各看各的手机，安静得很自然", { avoidant: 1 }, { independent: 2, anchor: 1 }],
+        ["会一直找话题，怕气氛冷掉", { anxious: 2 }, { playmate: 1, dependent: 1 }],
+        ["一会儿逗你，一会儿走神发呆", { fearful: 2 }, { playmate: 2 }]
+      ] },
+
+    /* ---- 阶段二：冲突与距离 ---- */
+    { q: "你们第一次有小摩擦，TA 的处理是",
+      o: [
+        ["当下就说开，说完像没发生过", { secure: 3 }, { soulmate: 1 }],
+        ["说句「没事」，然后安静了很久", { avoidant: 2 }, { evader: 2 }],
+        ["反复确认「你是不是没那么喜欢我了」", { anxious: 3 }, { dependent: 2 }],
+        ["先道歉，过一会儿又突然发火", { fearful: 3 }, { controller: 1 }]
+      ] },
+    { q: "你哭出来的时候，TA 会",
+      o: [
+        ["先抱住你，等你缓过来才问原因", { secure: 2 }, { caregiver: 3 }],
+        ["递纸巾，然后开始分析问题出在哪", { secure: 1 }, { guide: 3, controller: 1 }],
+        ["有点手足无措，说「别哭」想赶紧结束", { avoidant: 2 }, { evader: 2 }],
+        ["比你还慌，一直问「是不是我做错了」", { anxious: 3 }, { dependent: 2 }]
+      ] },
+    { q: "吵完架的那一晚，TA 会",
+      o: [
+        ["当晚就主动来谈，把话讲清楚", { secure: 3 }, { soulmate: 1 }],
+        ["沉默到第二天，然后像没吵过", { avoidant: 2 }, { evader: 2 }],
+        ["连发消息，反复追问你到底怎么想", { anxious: 3 }, { dependent: 1 }],
+        ["一会儿说算了，一会儿又说舍不得", { fearful: 3 }, { controller: 1 }]
+      ] },
+    { q: "意见不合时，TA 更像",
+      o: [
+        ["摆事实讲逻辑，也愿意各退一步", { secure: 2 }, { guide: 2, soulmate: 1 }],
+        ["非要分出对错，不太接受被反驳", { anxious: 1 }, { controller: 2 }],
+        ["先顺着你，之后用冷淡表达不满", { avoidant: 2 }, { evader: 2 }],
+        ["情绪先上来，事后才说「我刚才太冲了」", { fearful: 2 }, { playmate: 1 }]
+      ] },
+    { q: "你说「我需要一点空间」时，TA",
+      o: [
+        ["回一句「好，需要就找我」", { secure: 3 }, { independent: 2, rescuer: 1 }],
+        ["立刻当真，退得很远，几天不出现", { avoidant: 3 }, { evader: 1 }],
+        ["反复问「是不是我做错什么了」", { anxious: 3 }, { dependent: 2 }],
+        ["嘴上答应，之后一直试探你有没有变", { fearful: 2 }, { controller: 1 }]
+      ] },
+    { q: "TA 突然冷了一整天，后来你知道原因是",
+      o: [
+        ["就是累了，没什么事，缓过来就正常", { secure: 2 }, { anchor: 1, playmate: 1 }],
+        ["你说的一句话让 TA 反复想了很久", { anxious: 2 }, { soulmate: 2 }],
+        ["TA 需要自己待着，跟谁都无关", { avoidant: 3 }, { independent: 2 }],
+        ["TA 自己也没想清楚，只是先把你推开了", { fearful: 2 }, { evader: 1 }]
+      ] },
+    { q: "你做了一个 TA 并不认同的决定",
+      o: [
+        ["说出顾虑，最后尊重你的选择", { secure: 2 }, { guide: 2, soulmate: 1 }],
+        ["反复劝，直到你改主意为止", { anxious: 1 }, { controller: 3, guide: 1 }],
+        ["不太表态，之后用行动疏远你", { avoidant: 2 }, { evader: 2 }],
+        ["当时同意，过几天翻旧账", { fearful: 2 }, { controller: 1 }]
+      ] },
+    { q: "关系里出现第三方（前任、走得很近的朋友）",
+      o: [
+        ["问清楚情况，讲出自己的感受，然后翻篇", { secure: 3 }, { soulmate: 1, rescuer: 1 }],
+        ["忍住不说，自己反复查、反复想", { anxious: 2 }, { controller: 2 }],
+        ["不闻不问，把这件事整个绕过去", { avoidant: 2 }, { evader: 2 }],
+        ["用报复性的冷淡来试探你还爱不爱", { fearful: 3 }, { controller: 1 }]
+      ] },
+
+    /* ---- 阶段三：情感表达 ---- */
+    { q: "TA 说「喜欢」的频率是",
+      o: [
+        ["会直接说，也不怕说", { secure: 2 }, { romantic: 1, playmate: 1 }],
+        ["几乎不说，但事情上做得多", { avoidant: 1 }, { caregiver: 2, anchor: 2 }],
+        ["常说，还会反复要你也说", { anxious: 3 }, { dependent: 1, romantic: 1 }],
+        ["情绪到了就说，第二天又像没说过", { fearful: 2 }, { evader: 1 }]
+      ] },
+    { q: "TA 会主动讲自己的感受吗",
+      o: [
+        ["会说清楚，是烦还是难过", { secure: 3 }, { soulmate: 1 }],
+        ["很少讲，问起来才说两句", { avoidant: 3 }, { independent: 1 }],
+        ["会讲，但讲着讲着就担心你嫌 TA 烦", { anxious: 2 }, { dependent: 2 }],
+        ["讲一半就停，然后换话题", { fearful: 2 }, { evader: 2 }]
+      ] },
+    { q: "纪念日、节日，TA 会",
+      o: [
+        ["提前安排，仪式感实在又不夸张", { secure: 2 }, { romantic: 2, anchor: 1 }],
+        ["送很用心的东西，还会准备惊喜", { anxious: 1 }, { romantic: 3, playmate: 1 }],
+        ["记得，但要你提醒才行动", { avoidant: 1 }, { dependent: 1, anchor: 1 }],
+        ["当天才想起来，或者装作不在意", { avoidant: 1 }, { evader: 2, playmate: 1 }]
+      ] },
+    { q: "TA 生病的时候",
+      o: [
+        ["会告诉你，也接受你照顾", { secure: 2 }, { soulmate: 1 }],
+        ["硬扛着不说，好一点了才提", { avoidant: 3 }, { independent: 1 }],
+        ["希望你立刻出现，陪着才行", { anxious: 2 }, { dependent: 2 }],
+        ["一边说不用管，一边等你来", { fearful: 2 }, { playmate: 1 }]
+      ] },
+    { q: "亲密接触（牵手、拥抱）的节奏是",
+      o: [
+        ["自然、稳定，随时都能靠", { secure: 3 }, { romantic: 1 }],
+        ["有明显节奏，太快会往后缩", { avoidant: 2 }, { soulmate: 1, evader: 1 }],
+        ["很黏，喜欢一直待在你身上", { anxious: 2 }, { dependent: 2, romantic: 1 }],
+        ["热的时候很主动，之后突然躲开", { fearful: 3 }, { evader: 1 }]
+      ] },
+    { q: "TA 表达不满的方式是",
+      o: [
+        ["直接说「我刚才不舒服」，讲清原因", { secure: 3 }, { guide: 1 }],
+        ["不说，用冷淡和敷衍让你自己发现", { avoidant: 2 }, { evader: 2 }],
+        ["反复讲、反复确认你有没有听进去", { anxious: 2 }, { controller: 1, guide: 1 }],
+        ["突然爆发，说完又后悔", { fearful: 2 }, { controller: 1 }]
+      ] },
+    { q: "TA 会在你面前示弱吗",
+      o: [
+        ["会，累的时候会说累", { secure: 3 }, { soulmate: 1 }],
+        ["几乎不会，硬撑到结束", { avoidant: 2 }, { independent: 2, anchor: 1 }],
+        ["会，但示弱之后要你保证不会走", { anxious: 2 }, { dependent: 2 }],
+        ["偶尔崩溃一次，然后装作没发生", { fearful: 2 }, { evader: 1 }]
+      ] },
+    { q: "你送 TA 礼物，TA 会",
+      o: [
+        ["真诚道谢，还会说喜欢哪一点", { secure: 2 }, { soulmate: 1 }],
+        ["一直问多少钱、为什么买这么贵", { anxious: 1 }, { caregiver: 2, controller: 1 }],
+        ["笑着说谢谢，之后很少用也很少提", { avoidant: 2 }, { independent: 2 }],
+        ["很惊喜，也会立刻张罗着回礼", { anxious: 1 }, { romantic: 2, rescuer: 1, playmate: 1 }]
+      ] },
+
+    /* ---- 阶段四：长期期待 ---- */
+    { q: "聊到未来时，TA 是",
+      o: [
+        ["愿意讲具体的打算，也会问你的想法", { secure: 2 }, { soulmate: 1, anchor: 1, rescuer: 1 }],
+        ["说得很大很浪漫，细节总是模糊的", { anxious: 2 }, { romantic: 3 }],
+        ["会帮你分析利弊，甚至替你把路规划好", { secure: 1 }, { guide: 3, controller: 1 }],
+        ["「先过好现在吧」，一聊就换话题", { avoidant: 2 }, { evader: 2 }]
+      ] },
+    { q: "说到同居或搬到同一个城市，TA",
+      o: [
+        ["愿意一起规划具体方案", { secure: 2 }, { anchor: 2, guide: 1, rescuer: 1 }],
+        ["含糊地「到时候看吧」", { avoidant: 2 }, { evader: 2 }],
+        ["很想，但更在意你会不会变", { anxious: 3 }, { dependent: 1 }],
+        ["一会儿很想，一会儿说怕失去自由", { fearful: 2 }, { independent: 1, evader: 1 }]
+      ] },
+    { q: "谈钱的态度上，TA 更像",
+      o: [
+        ["算得清，也愿意一起商量", { secure: 2 }, { anchor: 3 }],
+        ["不太愿意谈，觉得伤感情", { anxious: 1 }, { romantic: 1, evader: 2 }],
+        ["习惯替你付，也不太让你付", { anxious: 1 }, { controller: 2, rescuer: 2, caregiver: 1 }],
+        ["分得很清楚，边界特别明确", { avoidant: 1 }, { independent: 3 }]
+      ] },
+    { q: "提到结婚或长期承诺，TA",
+      o: [
+        ["会认真谈，也会讲清楚自己的顾虑", { secure: 3 }, { soulmate: 1 }],
+        ["回避，说「现在说这个太早」", { avoidant: 3 }, { evader: 1 }],
+        ["很想确定下来，还要反复确认你也想", { anxious: 3 }, { dependent: 2 }],
+        ["态度反复，一会儿憧憬一会儿退缩", { fearful: 3 }, { evader: 1 }]
+      ] },
+    { q: "对彼此家人和朋友，TA 的方式是",
+      o: [
+        ["愿意融入，也保留各自的圈子", { secure: 2 }, { independent: 1, soulmate: 1 }],
+        ["很在意你家里人怎么看 TA", { anxious: 2 }, { caregiver: 1, controller: 1 }],
+        ["不太参与，也不希望被过多介入", { avoidant: 2 }, { independent: 2 }],
+        ["热情和疏离来回切换", { fearful: 2 }, { playmate: 1, evader: 1 }]
+      ] },
+    { q: "事业和关系冲突时，TA 会",
+      o: [
+        ["讨论取舍，尽量两边都安排好", { secure: 2 }, { anchor: 2, guide: 1, rescuer: 1 }],
+        ["默认关系让位，工作优先", { avoidant: 2 }, { independent: 2, anchor: 1 }],
+        ["愿意为你调整，也希望你记得这份让步", { anxious: 2 }, { rescuer: 2, caregiver: 2 }],
+        ["希望你把它放在最前面，不太接受排第二", { anxious: 1 }, { controller: 2, romantic: 1 }]
+      ] },
+    { q: "五年后，TA 会怎么形容这段关系",
+      o: [
+        ["「一直都在，挺好的」", { secure: 2 }, { anchor: 2, rescuer: 1 }],
+        ["「说不清，走着看吧」", { avoidant: 2 }, { evader: 2 }],
+        ["「我为这段关系付出了很多」", { anxious: 1 }, { rescuer: 3 }],
+        ["「我们是最懂彼此的人」", { secure: 1 }, { soulmate: 3, romantic: 1 }]
+      ] },
+    { q: "如果你们必须异地一段时间，TA 会",
+      o: [
+        ["一起定规则：多久见一次、每天怎么联系", { secure: 2 }, { anchor: 2, guide: 1, rescuer: 1 }],
+        ["说「都可以」，然后慢慢减少联系", { avoidant: 2 }, { evader: 2 }],
+        ["很焦虑，需要不断确认你还爱 TA", { anxious: 3 }, { dependent: 2 }],
+        ["一边说支持你，一边用情绪把你拉回来", { fearful: 2 }, { controller: 2 }]
+      ] }
+  ];
+
+  /* 归一化：[[文案, att, role]] → {t, a, r} */
+  function norm(list) {
+    return list.map(function (item) {
+      return {
+        q: item.q,
+        o: item.o.map(function (o) {
+          return { t: o[0], a: o[1] || {}, r: o[2] || {} };
+        })
+      };
+    });
+  }
+  var QS_QUICK = norm(QSHORT_RAW);
+  var QS_LONG = norm(QLONG_RAW);
+
+  var STAGES = [
+    { name: "日常相处", desc: "先从最容易被忽略的日常入手：回消息的节奏、点菜的习惯、走路的距离。恋爱人格往往藏在这些地方。" },
+    { name: "冲突与距离", desc: "接下来是真正的分水岭。人在不顺的时候，会露出最本能的应对方式——是把话说开，还是后退、沉默、试探。" },
+    { name: "情感表达", desc: "这一段看 TA 怎么把喜欢说出口：是直接讲，还是用做事代替；是示弱，还是硬撑。" },
+    { name: "长期期待", desc: "最后一段往前看：未来、钱、承诺、异地。愿望越具体，越能看出 TA 想把你放在什么位置。" }
+  ];
+  var PASS_PEEK = [
+    "第一阶段完成。你已经摸到 TA 的日常底色了——接下来换个场景，看看 TA 在摩擦里是什么样。",
+    "第二阶段完成。冲突里的反应，通常比甜的时候更真实。下一段，我们看 TA 怎么表达喜欢。",
+    "第三阶段完成。表达方式看清了，最后一段聊点更远的：未来、承诺、异地。"
+  ];
+
+  /* ========== 星座计算（公历，含交界日） ========== */
+  function getSign(m, d) {
+    for (var i = 0; i < ZODIAC.length; i++) {
+      var s = ZODIAC[i];
+      var sm = s.from[0], sd = s.from[1], em = s.to[0], ed = s.to[1];
+      if (sm === em) {
+        if (m === sm && d >= sd && d <= ed) return s;
+      } else if (sm < em) {
+        if ((m === sm && d >= sd) || (m === em && d <= ed) || (m > sm && m < em)) return s;
+      } else {
+        /* 跨年：摩羯 12/22 - 1/19 */
+        if ((m === sm && d >= sd) || (m === em && d <= ed)) return s;
+      }
+    }
+    return ZODIAC[0];
+  }
+  function daysInMonth(m) {
+    if (m === 2) return 29;
+    if (m === 4 || m === 6 || m === 9 || m === 11) return 30;
+    return 31;
+  }
+
+  /* ========== 计分：按各维度理想上限归一化 ========== */
+  function maxOf(qs) {
+    var mAtt = {}, mRole = {};
+    qs.forEach(function (q) {
+      var bA = {}, bR = {};
+      q.o.forEach(function (o) {
+        for (var k in o.a) bA[k] = Math.max(bA[k] || 0, o.a[k]);
+        for (var j in o.r) bR[j] = Math.max(bR[j] || 0, o.r[j]);
+      });
+      for (var k2 in bA) mAtt[k2] = (mAtt[k2] || 0) + bA[k2];
+      for (var k3 in bR) mRole[k3] = (mRole[k3] || 0) + bR[k3];
+    });
+    return { att: mAtt, role: mRole };
+  }
+
+  function sumAnswers(qs, answers) {
+    var sA = {}, sR = {};
+    answers.forEach(function (oi, qi) {
+      var o = qs[qi].o[oi];
+      for (var k in o.a) sA[k] = (sA[k] || 0) + o.a[k];
+      for (var j in o.r) sR[j] = (sR[j] || 0) + o.r[j];
+    });
+    return { att: sA, role: sR };
+  }
+
+  function rank(scores, maxMap, order) {
+    var rows = order.map(function (k, i) {
+      var mx = maxMap[k] || 1;
+      var v = scores[k] || 0;
+      return { key: k, raw: v, max: mx, ratio: v / mx, order: i };
+    });
+    rows.sort(function (a, b) {
+      if (b.ratio !== a.ratio) return b.ratio - a.ratio;
+      if (b.raw !== a.raw) return b.raw - a.raw;
+      return a.order - b.order;
+    });
+    return rows;
+  }
+
+  /* ========== DOM 快捷方式 ========== */
+  function $(id) { return document.getElementById(id); }
+  function show(id) {
+    var all = document.querySelectorAll(".screen");
+    for (var i = 0; i < all.length; i++) all[i].classList.remove("active");
+    $(id).classList.add("active");
+    window.scrollTo(0, 0);
+  }
+
+  /* ========== 状态 ========== */
+  var state = {
+    mode: "quick",
+    gender: "none",
+    month: null,
+    day: null,
+    sign: null,
+    qs: QS_QUICK,
+    idx: 0,
+    answers: []
+  };
+
+  /* ========== 封面：模式 ========== */
+  var modeEls = document.querySelectorAll("#modes .mode");
+  Array.prototype.forEach.call(modeEls, function (el) {
+    el.addEventListener("click", function () {
+      Array.prototype.forEach.call(modeEls, function (x) { x.classList.remove("sel"); });
+      el.classList.add("sel");
+      state.mode = el.getAttribute("data-mode");
+    });
+  });
+
+  /* ========== 封面：性别 ========== */
+  var gEls = document.querySelectorAll("#grow .gbtn");
+  Array.prototype.forEach.call(gEls, function (el) {
+    el.addEventListener("click", function () {
+      Array.prototype.forEach.call(gEls, function (x) { x.classList.remove("sel"); });
+      el.classList.add("sel");
+      state.gender = el.getAttribute("data-g");
+    });
+  });
+
+  /* ========== 封面：生日 ========== */
+  (function initBirthday() {
+    var bm = $("bmonth"), bd = $("bday");
+    for (var m = 1; m <= 12; m++) {
+      var op = document.createElement("option");
+      op.value = String(m);
+      op.textContent = m + " 月";
+      bm.appendChild(op);
+    }
+    function fillDays(m) {
+      var keep = bd.value;
+      bd.innerHTML = "";
+      var first = document.createElement("option");
+      first.value = "";
+      first.textContent = "日期";
+      bd.appendChild(first);
+      if (!m) return;
+      var n = daysInMonth(m);
+      for (var d = 1; d <= n; d++) {
+        var op = document.createElement("option");
+        op.value = String(d);
+        op.textContent = d + " 日";
+        bd.appendChild(op);
+      }
+      if (keep && Number(keep) <= n) bd.value = keep;
+    }
+    bm.addEventListener("change", function () {
+      var m = Number(bm.value) || 0;
+      fillDays(m);
+      state.month = m || null;
+      state.day = null;
+      checkSign();
+    });
+    bd.addEventListener("change", function () {
+      state.day = Number(bd.value) || null;
+      checkSign();
+    });
+    function checkSign() {
+      var hint = $("bdayHint"), peek = $("signPeek");
+      if (state.month && state.day) {
+        state.sign = getSign(state.month, state.day);
+        hint.classList.remove("on");
+        peek.classList.add("on");
+        $("signPeekName").textContent = state.sign.name + " · " + ELEM[state.sign.elem].name + " · " +
+          state.month + "月" + state.day + "日";
+      } else {
+        peek.classList.remove("on");
+      }
+    }
+    fillDays(0);
+  })();
+
+  /* ========== 开始 ========== */
+  $("startBtn").addEventListener("click", function () {
+    if (!state.month || !state.day) {
+      $("bdayHint").classList.add("on");
+      try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) { window.scrollTo(0, 0); }
+      return;
+    }
+    state.sign = getSign(state.month, state.day);
+    state.qs = state.mode === "precise" ? QS_LONG : QS_QUICK;
+    state.idx = 0;
+    state.answers = [];
+    show("quiz");
+    renderQ();
+  });
+
+  /* ========== 答题渲染 ========== */
+  function stageOf(idx) { return Math.min(3, Math.floor(idx / 8)); }
+
+  function renderQ() {
+    var qs = state.qs, i = state.idx, total = qs.length;
+    $("counter").textContent = pad(i + 1) + " / " + total;
+    $("backBtn").classList.toggle("on", i > 0);
+    $("bar").style.width = ((i) / total * 100) + "%";
+
+    var sb = $("stagebar");
+    if (state.mode === "precise") {
+      sb.style.display = "flex";
+      var html = "";
+      for (var k = 0; k < 4; k++) {
+        var cls = k < stageOf(i) ? "done" : (k === stageOf(i) ? "cur" : "");
+        html += '<i class="' + cls + '"></i>';
+      }
+      sb.innerHTML = html;
+      $("stagename").textContent = "阶段 " + (stageOf(i) + 1) + " / 4 · " + STAGES[stageOf(i)].name;
+    } else {
+      sb.style.display = "none";
+      $("stagename").textContent = "快速测试 · " + total + " 题";
+    }
+
+    $("qtext").textContent = qs[i].q;
+    var box = $("opts");
+    box.innerHTML = "";
+    var keys = ["A", "B", "C", "D"];
+    qs[i].o.forEach(function (o, oi) {
+      var div = document.createElement("div");
+      div.className = "opt";
+      if (state.answers[i] === oi) div.classList.add("sel");
+      div.innerHTML = '<span class="k">' + keys[oi] + "</span><span>" + o.t + "</span>";
+      div.addEventListener("click", function () { choose(oi); });
+      box.appendChild(div);
+    });
+    $("bar").style.width = (i / total * 100) + "%";
+  }
+
+  function pad(n) { return n < 10 ? "0" + n : String(n); }
+
+  function choose(oi) {
+    state.answers[state.idx] = oi;
+    var opts = document.querySelectorAll("#opts .opt");
+    Array.prototype.forEach.call(opts, function (x) { x.classList.remove("sel"); });
+    if (opts[oi]) opts[oi].classList.add("sel");
+
+    var total = state.qs.length;
+    $("bar").style.width = ((state.idx + 1) / total * 100) + "%";
+
+    setTimeout(function () {
+      if (state.idx + 1 >= total) {
+        renderResult();
+        return;
+      }
+      /* 精准版：每段结束（8 题）插入过场 */
+      if (state.mode === "precise" && (state.idx + 1) % 8 === 0) {
+        showPass(state.idx + 1);
+        return;
+      }
+      state.idx++;
+      renderQ();
+    }, 190);
+  }
+
+  function showPass(done) {
+    var stageNo = done / 8;
+    $("passBig").textContent = stageNo + " / 4";
+    $("passTitle").textContent = "「" + STAGES[stageNo - 1].name + "」已完成";
+    $("passDesc").textContent = PASS_PEEK[stageNo - 1] || "";
+    var nxt = STAGES[Math.min(3, stageNo)];
+    $("passPeek").innerHTML = "下一阶段：<b>" + nxt.name + "</b><br>" + nxt.desc;
+    $("passBtn").textContent = stageNo === 3 ? "看结果" : "继续下一阶段（" + (stageNo + 1) + "/4）";
+    show("pass");
+  }
+
+  $("passBtn").addEventListener("click", function () {
+    if (state.idx + 1 >= state.qs.length) {
+      renderResult();
+      return;
+    }
+    state.idx++;
+    show("quiz");
+    renderQ();
+  });
+
+  $("backBtn").addEventListener("click", function () {
+    if (state.idx > 0) {
+      state.idx--;
+      renderQ();
+    }
+  });
+
+  /* ========== 结果 ========== */
+  function renderResult() {
+    var qs = state.qs, total = qs.length;
+    var mx = maxOf(qs);
+    var sum = sumAnswers(qs, state.answers);
+    var attRows = rank(sum.att, mx.att, ATT_ORDER);
+    var roleRows = rank(sum.role, mx.role, ROLE_ORDER);
+
+    var attKey = attRows[0].key, att2 = attRows[1].key;
+    var roleKey = roleRows[0].key, role2 = roleRows[1].key;
+    var A = ATT[attKey], R = ROLE[roleKey], S = state.sign || getSign(state.month, state.day);
+    var G = GENDER[state.gender] || GENDER.none;
+
+    /* 第一层 */
+    $("rtitle").textContent = A.name + " × " + R.name + "恋人";
+    $("rsub").textContent = "生日 " + state.month + "月" + state.day + "日 · " + S.name + " · " +
+      ELEM[S.elem].name + " · " + genderLabel(state.gender);
+
+    var kw = A.kws.concat([R.short]).map(function (k) { return "<span>" + k + "</span>"; }).join("");
+    $("kws").innerHTML = kw;
+
+    $("quote").textContent = A.portrait + R.portrait + genderLine(state.gender);
+
+    /* 分布条：依恋 4 项 + 角色前 4 */
+    var barsHtml = "";
+    attRows.forEach(function (r) {
+      barsHtml += barRow("依恋·" + ATT[r.key].name.replace("型", ""), r.ratio);
+    });
+    roleRows.slice(0, 4).forEach(function (r) {
+      barsHtml += barRow("角色·" + ROLE[r.key].name.replace("型", ""), r.ratio);
+    });
+    $("bars").innerHTML = barsHtml;
+
+    $("behaviors").innerHTML = A.behaviors.map(function (x) { return "<li>" + x + "</li>"; }).join("");
+    $("advice").innerHTML = A.advice.map(function (x) { return "<li>" + x + "</li>"; }).join("");
+
+    /* 红旗：安全型/稳定角色时优先展示角色侧风险 */
+    var preferRoleFlag = (attKey === "secure") ||
+      ["controller", "evader", "dependent", "rescuer", "romantic"].indexOf(roleKey) >= 0;
+    $("flag").textContent = preferRoleFlag ? R.flag : A.flag;
+
+    $("duo").innerHTML =
+      '<div class="item"><b>依恋副型 · ' + ATT[att2].name + '（' + pct(attRows[1].ratio) + '）</b><p>' +
+      ATT[att2].portrait + '</p></div>' +
+      '<div class="item"><b>角色副型 · ' + ROLE[role2].name + '（' + pct(roleRows[1].ratio) + '）</b><p>' +
+      ROLE[role2].portrait + '</p></div>';
+
+    /* 第二层：星座滤镜 */
+    $("zicon").className = "zicon " + S.elem;
+    $("zicon").textContent = S.icon;
+    $("zname").textContent = S.name;
+    $("zmeta").textContent = "公历 " + S.from[0] + "月" + S.from[1] + "日 - " + S.to[0] + "月" + S.to[1] + "日";
+    $("etags").innerHTML =
+      '<span class="etag">' + ELEM[S.elem].name + " · " + ELEM[S.elem].trait + "</span>" +
+      '<span class="etag">' + S.base + "</span>";
+    $("zbase").textContent = ELEM_SENT[S.elem];
+    $("zatt").textContent = S.att[attKey];
+    $("zrole").textContent = S.style + "。这让 TA 的「" + R.name + "」特质" + R.mod + "。";
+
+    /* 第三层：分享文案 */
+    var share = "我用 " + total + " 题测了 TA 的恋爱人格：\n" +
+      "【" + A.name + " × " + R.name + "恋人】\n" +
+      "星座滤镜：" + S.name + "（" + ELEM[S.elem].name + "）—— " + S.base + "\n" +
+      "TA 是" + G.phrase + "。\n" +
+      "一句话画像：" + A.portrait + "\n" +
+      "相处建议：" + A.advice[0] + "\n" +
+      "需要留意：" + (preferRoleFlag ? R.flag : A.flag) + "\n" +
+      "附型：" + ATT[att2].name + " / " + ROLE[role2].name + "\n" +
+      "——「测一测你的 TA 是什么类型的恋人」";
+    $("sharebox").textContent = share;
+
+    /* 存一份，供复制 */
+    state.share = share;
+
+    show("result");
+
+    /* 条形图动画 */
+    setTimeout(function () {
+      var fills = document.querySelectorAll("#bars .bt i");
+      Array.prototype.forEach.call(fills, function (f) {
+        f.style.width = (f.getAttribute("data-w") || 0) + "%";
+      });
+    }, 60);
+  }
+
+  function barRow(name, ratio) {
+    var v = Math.max(4, Math.round(ratio * 100));
+    return '<div class="bar-row"><span class="bn">' + name + '</span>' +
+      '<span class="bt"><i data-w="' + v + '"></i></span>' +
+      '<span class="bv">' + v + "</span></div>";
+  }
+  function pct(r) { return Math.round(r * 100) + "%"; }
+  function genderLabel(g) {
+    if (g === "male") return "男生";
+    if (g === "female") return "女生";
+    return "性别未透露";
+  }
+  function genderLine(g) {
+    if (g === "male") return "在外人面前，TA 更习惯用「先做了再说」的方式表达在意。";
+    if (g === "female") return "在外人面前，TA 更习惯把在意藏在细节里，不太会当众讲出口。";
+    return "在外人面前，TA 的在意要靠近一点才看得出来。";
+  }
+
+  /* ========== 复制 ========== */
+  $("copyBtn").addEventListener("click", function () {
+    var text = state.share || $("sharebox").textContent;
+    function done() { toast("已复制，去分享吧"); }
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "readonly");
+      ta.style.position = "fixed";
+      ta.style.top = "0";
+      ta.style.left = "0";
+      ta.style.width = "1px";
+      ta.style.height = "1px";
+      ta.style.padding = "0";
+      ta.style.border = "0";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      var ok = false;
+      try {
+        ta.focus();
+        ta.select();
+        if (ta.setSelectionRange) { ta.setSelectionRange(0, text.length); }
+        ok = document.execCommand("copy");
+      } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      if (ok) {
+        done();
+      } else {
+        /* 兜底：自动选中分享文案，方便直接长按复制 */
+        try {
+          var box = $("sharebox");
+          var rng = document.createRange();
+          rng.selectNodeContents(box);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(rng);
+        } catch (e) {}
+        toast("复制失败，请长按已选中的文字");
+      }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else {
+      fallback();
+    }
+  });
+
+  var toastTimer = null;
+  function toast(msg) {
+    var t = $("toast");
+    t.textContent = msg;
+    t.classList.add("on");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove("on"); }, 1600);
+  }
+
+  /* ========== 重测 / 回封面 ========== */
+  $("retest").addEventListener("click", function () {
+    state.idx = 0;
+    state.answers = [];
+    show("quiz");
+    renderQ();
+  });
+  $("toCover").addEventListener("click", function () {
+    show("cover");
+  });
+
+  /* ========== 存储安全封装（file:// / 无痕模式下 localStorage 会抛错） ========== */
+  var safeStore = (function () {
+    function get(k) { try { return window.localStorage ? window.localStorage.getItem(k) : null; } catch (e) { return null; } }
+    function set(k, v) { try { if (window.localStorage) { window.localStorage.setItem(k, v); } } catch (e) {} }
+    function del(k) { try { if (window.localStorage) { window.localStorage.removeItem(k); } } catch (e) {} }
+    return { get: get, set: set, del: del };
+  })();
+
+  /* ========== 本地文件（file://）打开提示条 ========== */
+  (function initFileTip() {
+    var tip = $("fileTip");
+    if (!tip) { return; }
+    var proto = "";
+    try { proto = location.protocol; } catch (e) { proto = ""; }
+    if (proto !== "file:") { return; }
+    var ua = navigator.userAgent || "";
+    var isIOS = /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && "ontouchend" in document);
+    var isAndroid = /Android/i.test(ua);
+    var txt;
+    if (isIOS) {
+      txt = "已本地打开。iOS 微信里点了没反应的话，请点右上角「···」→「在浏览器中打开」，用 Safari 打开本文件即可正常使用。";
+    } else if (isAndroid) {
+      txt = "已本地打开。安卓微信里点了没反应的话，请点右上角「···」→「在浏览器打开」，或长按文件选择用 Chrome / 系统浏览器打开。";
+    } else {
+      txt = "已本地打开。若点击无反应，请用浏览器打开此文件。";
+    }
+    var tx = $("fileTipText");
+    if (tx) { tx.textContent = txt; }
+    tip.hidden = false;
+    if (typeof window.scrollTo === "function") {
+      try { window.scrollTo(0, 0); } catch (e) {}
+    }
+    var closeBtn = $("fileTipClose");
+    if (closeBtn) {
+      closeBtn.addEventListener("click", function () {
+        tip.hidden = true;
+        safeStore.set("lovetest.filetip.closedAt", String(Date.now()));
+      });
+    }
+  })();
+})();
+</script>
+</body>
+</html>
